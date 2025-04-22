@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoTracker - Location-based Task Manager</title>
+  <style>
+    /* Your CSS styles here */
+    * {box-sizing: border-box;}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.topnav {
+  overflow: hidden;
+  background-color: #9ff013;
+}
+
+.topnav a {
+  float: left;
+  display: block;
+  color: rgb(0, 0, 0);
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav a:hover {
+  background-color: #34d617;
+  color: rgb(255, 255, 255);
+}
+
+.topnav a.active {
+  background-color: #34d617;
+  color: white;
+}
+
+.topnav .circle {
+  float: right;
+}
+.circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%; /* This makes it a circle */
+      overflow: hidden; /* Clips the image to the circle */
+      margin: 7px;
+      position: relative;
+      float: right;
+    }
+    .circle img {
+      width: 100%;
+      height: auto;
+    }
+    .name {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      color: white;
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 5px 10px;
+      border-radius: 5px;
+      display: none; /* Hide the name initially */
+    }
+    .circle:hover .name {
+      display: block;
+    }
+
+@media screen and (max-width: 600px) {
+      .circle {
+        width: 20px;
+        height: 20px;
+        margin: 5px;
+      }
+
+      .circle img {
+        width: 100%;
+        height: auto;
+      }
+
+      .name {
+        font-size: 12px;
+      }
+    }
+    
+    
+    #taskList {
+      width: 20%; /* Example width; adjust as needed */
+      height: 250px;
+      overflow-y: auto;
+      margin: 10px;
+      margin-bottom: 10px;
+      margin-top: 3px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    
+    #taskForm {
+      width: 20%; /* Example width; adjust as needed */
+      height: 338.5px;
+      margin: 10px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+
+    }
+        #taskForm label {
+        display: block;
+        margin-bottom: 0.5px; /* Creates space between label and input */
+         }
+    #taskForm input[type="text"],
+    #taskForm textarea,
+    #taskForm input[type="date"] {
+    width: 40%; /* Makes inputs take full width minus padding */
+    padding: 8px; /* Adjust padding as needed */
+    margin-bottom: 15px; /* Creates space between input elements */
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    }
+    
+    #map {
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  height: 94%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 78%; /* Example width; adjust as needed */
+   }
+   #deleteTaskButton {
+  margin-right: 10px; /* Adjust as needed */
+  background-color: rgba(7, 113, 234, 0);
+  color: rgb(56, 236, 7);
+  border: 1px solid rgb(0, 0, 0);
+  padding: 4px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+#deleteTaskButton:hover {
+  background-color: rgba(0, 0, 0, 0.7); /* Adjust the alpha value to change transparency */
+}
+input[type="submit"] {
+     /* Adjust as needed */
+  background-color: rgba(7, 113, 234, 0);
+  color: rgb(56, 236, 7);
+  border: 1px solid rgb(0, 0, 0);
+  padding: 4px 20px;
+  border-radius: 4px;
+  cursor: pointer;  
+}
+input[type="submit"]:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+.delete-button {
+    background-color: rgba(7, 113, 234, 0);
+  color: rgb(56, 236, 7);
+  border: 1px solid rgb(0, 0, 0);
+  padding: 4px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+ .delete-button:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+ }
+
+  </style>
+  <!-- Leaflet.js CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+<body> 
+  <div class="topnav">
+    <a class="active" href="#home">Home</a>
+    <a href="aboutus.html">About</a>
+    <a href="contact.html">Contact</a>
+    <div class="circle">
+      <img src="IMG-20221222-WA0031.jpg" alt="Your Photo">
+      <div class="name">M.Furqan</div>
+    </div>
+  </div>
+    
+  <!-- User Authentication Section -->
+    <div id="taskList">
+    <h1>Tasks<h1>
+    </div>
+    <div id="taskForm">
+      <h2>Create Task</h2>
+      <form id="createTask">
+        <label for="taskTitle">Title:</label>
+        <input type="text" id="taskTitle" name="taskTitle" required><br>
+        <label for="taskDescription">Description:</label>
+        <textarea id="taskDescription" name="taskDescription" required></textarea><br>
+        <label for="dueDate">Due Date:</label>
+        <input type="date" id="dueDate" name="dueDate" required><br>
+        <button id="deleteTaskButton">Delete</button>
+        <input type="submit" value="Create Task">
+    </form>
+    </div>
+
+    <!-- Map Section -->
+    <div id="map"></div>
+
+  <!-- JavaScript - Leaflet.js for Map -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script>
+   document.addEventListener("DOMContentLoaded", function() {
+  var map = L.map('map').setView([33.6844, 73.0479], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+  }).addTo(map);
+
+  var totalTasks = 0; // Total tasks ka count
+  var closestDistance = Infinity; // Initialize closest distance
+  var closestTask; // Variable to hold the closest task location
+
+  var taskMarker = L.marker([33.6844, 73.0479]).addTo(map);
+  taskMarker.bindPopup("<b>Task Location</b><br>This is an example task.").openPopup();
+
+  var newMarker;
+
+  document.getElementById("createTask").addEventListener("submit", function(event) {
+    event.preventDefault(); // Form submission ko rokna
+    
+    // Task information collect karna
+    var taskTitle = document.getElementById("taskTitle").value;
+    var taskDescription = document.getElementById("taskDescription").value;
+    var dueDate = document.getElementById("dueDate").value;
+
+    // User ki traf se title ke basis par coordinates fetch karna (Geocoding service ka istemal karte hue)
+    var geocodingServiceURL = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(taskTitle);
+
+    fetch(geocodingServiceURL)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          var latitude = parseFloat(data[0].lat);
+          var longitude = parseFloat(data[0].lon);
+
+          // Naye marker point create karna (user ke enter kiye gaye title ke saath)
+          newMarker = L.marker([latitude, longitude]).addTo(map);
+          newMarker.bindPopup("<b>" + taskTitle + "</b><br>" + taskDescription + "<br>Due Date: " + dueDate).openPopup();
+
+          totalTasks++;
+
+          // Form fields ko clear karna
+          document.getElementById("taskTitle").value = "";
+          document.getElementById("taskDescription").value = "";
+          document.getElementById("dueDate").value = "";
+
+          // Existing marker ko remove karna
+          map.removeLayer(taskMarker);
+          // show information in task list
+          var taskListContainer = document.getElementById("taskList");
+          var taskItem = document.createElement("div");
+          taskItem.innerHTML = "<h3>" + taskTitle + "</h3><p>" + taskDescription + "<br>Due Date: " + dueDate + "</p>";
+          taskListContainer.appendChild(taskItem);
+           // Create Delete Button for the task in taskList container
+          var deleteButton = document.createElement("button");
+          deleteButton.textContent = "Delete";
+          deleteButton.classList.add("delete-button");
+          deleteButton.addEventListener("click", function() {
+            map.eachLayer(function(layer) {
+                if (layer instanceof L.Marker) {
+                    var coordinates = layer.getLatLng();
+                    if (coordinates.lat === latitude && coordinates.lng === longitude) {
+                        map.removeLayer(layer);
+                    }
+                }
+            });
+            taskListContainer.removeChild(taskItem);
+          });
+          taskItem.appendChild(deleteButton);
+
+          if (navigator.geolocation){
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var userLat = position.coords.latitude;
+              var userLng = position.coords.longitude;
+
+              var userMarker = L.marker([userLat, userLng]).addTo(map);
+              userMarker.bindPopup("Your location").openPopup();
+              var userLocation = L.latLng(userLat, userLng);
+              var taskLocation = L.latLng(latitude, longitude);
+              var distance = userLocation.distanceTo(taskLocation) / 1000;
+
+              if (distance < closestDistance) {
+                closestDistance = distance;
+                closestTask = taskLocation;
+                var closestTaskPopup = "Reminder you have to complete this task. The closest task to your location is: <b>" + taskTitle + "</b><br>Description: " + taskDescription;
+                alert(closestTaskPopup);
+              }
+            });
+          }else {
+            console.log("Geolocation is not supported by this browser.");
+          }
+        
+        } else {
+          alert("Location not found for the entered title.");
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  });
+  // Delete Task Function
+function Delete() {
+  var confirmation = confirm("Are you sure you want to delete all tasks?");
+  if (confirmation) {
+    // Remove all markers from the map
+    map.eachLayer(function (layer) {
+      if (layer instanceof L.Marker) {
+        map.removeLayer(layer);
+      }
+    });
+    var taskListContainer = document.getElementById("taskList");
+    taskListContainer.innerHTML="<h1>Tasks</h1>"
+    alert("All tasks deleted successfully!");
+  }
+}
+
+// Add Delete All Tasks Button Event Listener
+document.getElementById("deleteTaskButton").addEventListener("click", Delete);
+});
+
+
+  </script>
+  
+</body>
+</html>
